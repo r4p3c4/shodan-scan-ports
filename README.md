@@ -3,13 +3,13 @@ Verifica el estado real de los puertos de los dispositivos en Shodan
 
 # Requisitos
 ## Clonar repositorio de github
-    git clone https://github.com/r4p3c4/check-port-9100-printer.git
+    git clone https://github.com/r4p3c4/shodan-scan-ports.git
     
 ## Acceder a la carpeta del proyecto
-    cd check-port-9100-printer
+    cd shodan-scan-ports
 
 # Uso:
-    python3 check-port-9100.py <archivo_ips.txt>
+    python3 shodan-scan-ports.py
     
 # Ejemplo
 

@@ -13,7 +13,7 @@ Verifica el estado real de los puertos de los dispositivos en Shodan
     
 # Ejemplo
 
-Añades las IPs que quieres comprobar si tienen el puerto 9100 abierto
+Añades las IPs que quieres comprobar el estado de los puertos
 
 <img src="https://i.postimg.cc/CxsgKxCB/img1.png" alt="video3"/>
 

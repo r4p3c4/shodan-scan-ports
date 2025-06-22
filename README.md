@@ -17,9 +17,11 @@ Añades las IPs que quieres comprobar el estado de los puertos
 
 <img src="https://i.postimg.cc/CxsgKxCB/img1.png" alt="video3"/>
 
+Añadiendo un solo puerto:
+
+<img src="https://i.postimg.cc/506dp5hL/img3.png" alt="video3"/>
+
+Añadiendo más puertos:
 
 <img src="https://i.postimg.cc/rpyLR2gh/img2.png" alt="video3"/>
 
-Resultado de la ejecución:
-
-<img src="https://i.postimg.cc/506dp5hL/img3.png" alt="video3"/>

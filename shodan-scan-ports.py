@@ -6,6 +6,7 @@ RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
 BLUE = "\033[94m"
+MAGENTA = "\033[95m"
 RESET = "\033[0m"
 
 def check_port(ip, port, timeout=2):
@@ -19,6 +20,8 @@ def check_port(ip, port, timeout=2):
         return False
 
 def scan_ips_from_file(filename, ports):
+    resultados_abiertos = []
+
     try:
         with open(filename, 'r') as file:
             ips = file.readlines()
@@ -28,20 +31,29 @@ def scan_ips_from_file(filename, ports):
             if not ip:
                 continue
 
-            # Encabezado: línea amarilla + IP + línea azul con "- -"
             print(f"{YELLOW}{'#' * 66}{RESET}")
             print(f"{YELLOW}IP: {ip}{RESET}")
-            print(f"{BLUE}{'- ' * 33}{RESET}")  # 33 * 2 = 66 chars wide
+            print(f"{BLUE}{'- ' * 33}{RESET}")  # 66 chars wide
 
             for port in ports:
                 status = check_port(ip, port)
                 if status:
                     print(f"{GREEN}[{ip}:{port}] ABIERTO{RESET}")
+                    resultados_abiertos.append(f"{ip}:{port}")
                 else:
                     print(f"{RED}[{ip}:{port}] CERRADO{RESET}")
 
-        # Línea final global
         print(f"{YELLOW}{'#' * 66}{RESET}")
+
+        # Mostrar resumen de IP:puerto ABIERTO al final
+        print(f"{MAGENTA}{'@' * 66}{RESET}")
+        if resultados_abiertos:
+            print(f"{GREEN}Puertos abiertos:{RESET}")
+            for entrada in resultados_abiertos:
+                print(f"{GREEN}{entrada}{RESET}")
+        else:
+            print(f"{RED}No se encontraron puertos abiertos.{RESET}")
+        print(f"{MAGENTA}{'@' * 66}{RESET}")
 
     except FileNotFoundError:
         print(f"{RED}[!] Archivo '{filename}' no encontrado.{RESET}")
@@ -49,7 +61,6 @@ def scan_ips_from_file(filename, ports):
         print(f"{RED}[!] Error: {e}{RESET}")
 
 if __name__ == "__main__":
-    # Solicitar los puertos
     puerto_input = input("Introduce uno o más puertos separados por comas (ej. 80,443,3389): ").strip()
     try:
         puertos = [int(p.strip()) for p in puerto_input.split(",") if p.strip().isdigit()]
@@ -59,8 +70,5 @@ if __name__ == "__main__":
         print(f"{RED}[!] Debes introducir al menos un puerto válido (números enteros).{RESET}")
         sys.exit(1)
 
-    # Solicitar el archivo con IPs
     archivo_ips = input("Introduce el nombre del archivo con las IPs (ej. lista.txt): ").strip()
-
-    # Ejecutar escaneo
     scan_ips_from_file(archivo_ips, puertos)

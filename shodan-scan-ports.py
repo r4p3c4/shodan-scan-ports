@@ -70,5 +70,8 @@ if __name__ == "__main__":
         print(f"{RED}[!] Debes introducir al menos un puerto válido (números enteros).{RESET}")
         sys.exit(1)
 
-    archivo_ips = input("Introduce el nombre del archivo con las IPs (ej. lista.txt): ").strip()
+    archivo_ips = input("Introduce el nombre del archivo con las IPs (por defecto 'ips.txt'): ").strip()
+    if not archivo_ips:
+        archivo_ips = "ips.txt"
+
     scan_ips_from_file(archivo_ips, puertos)

@@ -78,5 +78,5 @@ if __name__ == "__main__":
         scan_ips_from_file(archivo_ips, puertos)
 
     except KeyboardInterrupt:
-        print(f"\n{YELLOW}==========================> SALISTE DEL PROGRAMA <=========================={RESET}")
+        print(f"\n{YELLOW}=======================> SALISTE DEL PROGRAMA <======================={RESET}")
         sys.exit(0)

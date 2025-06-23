@@ -61,17 +61,22 @@ def scan_ips_from_file(filename, ports):
         print(f"{RED}[!] Error: {e}{RESET}")
 
 if __name__ == "__main__":
-    puerto_input = input("Introduce uno o más puertos separados por comas (ej. 80,443,3389): ").strip()
     try:
-        puertos = [int(p.strip()) for p in puerto_input.split(",") if p.strip().isdigit()]
-        if not puertos:
-            raise ValueError
-    except ValueError:
-        print(f"{RED}[!] Debes introducir al menos un puerto válido (números enteros).{RESET}")
-        sys.exit(1)
+        puerto_input = input("Introduce uno o más puertos separados por comas (ej. 80,443,3389): ").strip()
+        try:
+            puertos = [int(p.strip()) for p in puerto_input.split(",") if p.strip().isdigit()]
+            if not puertos:
+                raise ValueError
+        except ValueError:
+            print(f"{RED}[!] Debes introducir al menos un puerto válido (números enteros).{RESET}")
+            sys.exit(1)
 
-    archivo_ips = input("Introduce el nombre del archivo con las IPs (por defecto 'ips.txt'): ").strip()
-    if not archivo_ips:
-        archivo_ips = "ips.txt"
+        archivo_ips = input("Introduce el nombre del archivo con las IPs (por defecto 'ips.txt'): ").strip()
+        if not archivo_ips:
+            archivo_ips = "ips.txt"
 
-    scan_ips_from_file(archivo_ips, puertos)
+        scan_ips_from_file(archivo_ips, puertos)
+
+    except KeyboardInterrupt:
+        print(f"\n{YELLOW}===============> SALISTE DEL PROGRAMA <==============={RESET}")
+        sys.exit(0)

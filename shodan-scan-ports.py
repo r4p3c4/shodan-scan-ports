@@ -56,17 +56,17 @@ def scan_ips_from_file(filename, ports):
                 else:
                     print(f"{RED}[{ip}:{port}] CERRADO{RESET}")
 
-        print(f"{YELLOW}{'#' * 66}{RESET}")
+        print(f"{YELLOW}{'#' * 74}{RESET}")
 
         # Mostrar resumen de IP:puerto ABIERTO al final
-        print(f"{MAGENTA}{'@' * 66}{RESET}")
+        print(f"{MAGENTA}{'@' * 74}{RESET}")
         if resultados_abiertos:
             print(f"{GREEN}Puertos abiertos:{RESET}")
             for entrada in resultados_abiertos:
                 print(f"{GREEN}{entrada}{RESET}")
         else:
             print(f"{RED}No se encontraron puertos abiertos.{RESET}")
-        print(f"{MAGENTA}{'@' * 66}{RESET}")
+        print(f"{MAGENTA}{'@' * 74}{RESET}")
 
     except FileNotFoundError:
         print(f"{RED}[!] Archivo '{filename}' no encontrado.{RESET}")

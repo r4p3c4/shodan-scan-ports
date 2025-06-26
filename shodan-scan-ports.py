@@ -46,7 +46,7 @@ def scan_ips_from_file(filename, ports):
 
             print(f"{YELLOW}{'#' * 74}{RESET}")
             print(f"{YELLOW}IP: {ip}{RESET}")
-            print(f"{BLUE}{'- ' * 33}{RESET}")  # 66 chars wide
+            print(f"{BLUE}{'- ' * 37}{RESET}")  # 66 chars wide
 
             for port in ports:
                 status = check_port(ip, port)

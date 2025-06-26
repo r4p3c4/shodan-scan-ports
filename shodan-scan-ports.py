@@ -65,7 +65,7 @@ def check_port_nmap(ip, port):
             "-Pn",
             "-T1",
             "--scan-delay", "100ms",
-            "--max-retries", "2",
+            "--max-retries", "5",
             "--reason",
             "-p", str(port), ip
         ]

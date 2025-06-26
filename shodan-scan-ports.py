@@ -1,6 +1,7 @@
 import socket
 import sys
 import os
+import subprocess
 
 # Códigos de color ANSI
 RED = "\033[91m"
@@ -22,16 +23,6 @@ def mostrar_portada():
 @                                                                        @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 {RESET}""")
-
-def check_port(ip, port, timeout=2):
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(timeout)
-            result = s.connect_ex((ip.strip(), port))
-            return result == 0
-    except Exception as e:
-        print(f"{YELLOW}[!] Error con {ip}:{port} - {e}{RESET}")
-        return False
 
 def procesar_entrada_puertos(puerto_input):
     puertos = set()
@@ -66,6 +57,39 @@ def procesar_entrada_puertos(puerto_input):
 
     return sorted(puertos), duplicados, errores
 
+def check_port_nmap(ip, port):
+    try:
+        cmd = [
+            "nmap",
+            "-sS",                         # Escaneo TCP SYN (stealth)
+            "-Pn",                         # No ping (evita bloqueo por ICMP)
+            "-T1",                         # Modo sigiloso
+            "--scan-delay", "100ms",       # Retraso entre paquetes
+            "--max-retries", "2",          # Pocos reintentos
+            "--spoof-mac", "Dell",            # Spoof de MAC (Dell)
+            "--reason",                    # Explica el estado
+            "-p", str(port), ip
+        ]
+
+        resultado = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        salida = resultado.stdout.lower()
+
+        if f"{port}/tcp open" in salida:
+            return "ABIERTO"
+        elif f"{port}/tcp closed" in salida:
+            return "CERRADO"
+        elif f"{port}/tcp filtered" in salida:
+            return "BANEADO"
+        elif "host seems down" in salida or "0 hosts up" in salida:
+            return "BANEADO"
+        else:
+            return "DESCONOCIDO"
+    except subprocess.TimeoutExpired:
+        return "BANEADO"
+    except Exception as e:
+        print(f"{YELLOW}[!] Error ejecutando nmap en {ip}:{port} - {e}{RESET}")
+        return "DESCONOCIDO"
+
 def scan_ips_from_file(filename, ports):
     resultados_abiertos = []
 
@@ -82,35 +106,36 @@ def scan_ips_from_file(filename, ports):
         print(f"{BLUE}{'- ' * 37}{RESET}")
 
         for port in ports:
-            status = check_port(ip, port)
-            if status:
-                print(f"{GREEN}[{ip}:{port}] ABIERTO{RESET}")
+            estado = check_port_nmap(ip, port)
+            if estado == "ABIERTO":
+                print(f"{GREEN}[{ip}:{port}] {estado}{RESET}")
                 resultados_abiertos.append(f"{ip}:{port}")
+            elif estado == "CERRADO":
+                print(f"{RED}[{ip}:{port}] {estado}{RESET}")
+            elif estado == "BANEADO":
+                print(f"{MAGENTA}[{ip}:{port}] {estado}{RESET}")
             else:
-                print(f"{RED}[{ip}:{port}] CERRADO{RESET}")
+                print(f"{YELLOW}[{ip}:{port}] ESTADO DESCONOCIDO{RESET}")
 
     print(f"{YELLOW}{'#' * 74}{RESET}")
     print(f"{MAGENTA}{'@' * 74}{RESET}")
-    print()  # Línea en blanco arriba
+    print()
 
     if resultados_abiertos:
-        print(f"{GREEN}Puertos abiertos:{RESET}")
-        print()  # Línea en blanco después de "Puertos abiertos:"
+        print(f"{GREEN}Puertos abiertos:{RESET}\n")
         for i, entrada in enumerate(resultados_abiertos):
             print(f"{GREEN}{entrada}{RESET}")
             if i != len(resultados_abiertos) - 1:
-                print()  # Línea en blanco solo si NO es el último
+                print()
     else:
         print(f"{RED}No se encontraron puertos abiertos.{RESET}")
 
-    print()  # Línea en blanco abajo
-    print(f"{MAGENTA}{'@' * 74}{RESET}")
+    print(f"\n{MAGENTA}{'@' * 74}{RESET}")
 
 if __name__ == "__main__":
     try:
         mostrar_portada()
 
-        # Bucle para validación de puertos
         while True:
             puerto_input = input("Introduce uno o más puertos o rangos (ej. 80,443,1000-1010): ").strip()
             puertos, duplicados, errores = procesar_entrada_puertos(puerto_input)
@@ -127,9 +152,8 @@ if __name__ == "__main__":
                 for d in sorted(duplicados):
                     print(f"{YELLOW}    - Puerto duplicado o ya incluido en un rango: {d}{RESET}")
 
-            break  # Puertos válidos
+            break
 
-        # Bucle para validación del archivo
         while True:
             archivo_ips = input("Introduce el nombre del archivo con las IPs (por defecto 'ips.txt'): ").strip()
             if not archivo_ips:
@@ -140,7 +164,6 @@ if __name__ == "__main__":
             else:
                 print(f"{RED}[!] El archivo '{archivo_ips}' no existe. Inténtalo de nuevo.{RESET}")
 
-        # Ejecutar escaneo
         scan_ips_from_file(archivo_ips, puertos)
 
     except KeyboardInterrupt:

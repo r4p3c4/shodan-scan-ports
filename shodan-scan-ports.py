@@ -91,12 +91,19 @@ def scan_ips_from_file(filename, ports):
 
     print(f"{YELLOW}{'#' * 74}{RESET}")
     print(f"{MAGENTA}{'@' * 74}{RESET}")
+    print()  # Línea en blanco arriba
+
     if resultados_abiertos:
         print(f"{GREEN}Puertos abiertos:{RESET}")
-        for entrada in resultados_abiertos:
+        print()  # Línea en blanco después de "Puertos abiertos:"
+        for i, entrada in enumerate(resultados_abiertos):
             print(f"{GREEN}{entrada}{RESET}")
+            if i != len(resultados_abiertos) - 1:
+                print()  # Línea en blanco solo si NO es el último
     else:
         print(f"{RED}No se encontraron puertos abiertos.{RESET}")
+
+    print()  # Línea en blanco abajo
     print(f"{MAGENTA}{'@' * 74}{RESET}")
 
 if __name__ == "__main__":
@@ -120,7 +127,7 @@ if __name__ == "__main__":
                 for d in sorted(duplicados):
                     print(f"{YELLOW}    - Puerto duplicado o ya incluido en un rango: {d}{RESET}")
 
-            break  # todo válido
+            break  # Puertos válidos
 
         # Bucle para validación del archivo
         while True:

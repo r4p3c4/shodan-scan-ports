@@ -2,6 +2,7 @@ import socket
 import sys
 import os
 import subprocess
+import random
 
 # Códigos de color ANSI
 RED = "\033[91m"
@@ -10,6 +11,15 @@ YELLOW = "\033[93m"
 BLUE = "\033[94m"
 MAGENTA = "\033[95m"
 RESET = "\033[0m"
+
+# Lista real de fabricantes de ordenadores que se venden en tiendas
+FABRICANTES_MAC = [
+    "Apple", "Asus", "Acer", "Dell", "HP", "Lenovo", "Microsoft", "MSI",
+    "Samsung", "Sony", "Toshiba", "Panasonic", "LG", "Huawei"
+]
+
+# Elegir aleatoriamente uno
+FABRICANTE_SPOOF = random.choice(FABRICANTES_MAC)
 
 def mostrar_portada():
     print(f"""{BLUE}
@@ -23,6 +33,7 @@ def mostrar_portada():
 @                                                                        @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 {RESET}""")
+    print(f"{YELLOW}[INFO] Usando spoof MAC con fabricante: {FABRICANTE_SPOOF}{RESET}\n")
 
 def procesar_entrada_puertos(puerto_input):
     puertos = set()
@@ -61,13 +72,13 @@ def check_port_nmap(ip, port):
     try:
         cmd = [
             "nmap",
-            "-sS",                         # Escaneo TCP SYN (stealth)
-            "-Pn",                         # No ping (evita bloqueo por ICMP)
-            "-T1",                         # Modo sigiloso
-            "--scan-delay", "100ms",       # Retraso entre paquetes
-            "--max-retries", "2",          # Pocos reintentos
-            "--spoof-mac", "Dell",            # Spoof de MAC (Dell)
-            "--reason",                    # Explica el estado
+            "-sS",
+            "-Pn",
+            "-T1",
+            "--scan-delay", "100ms",
+            "--max-retries", "2",
+            "--spoof-mac", FABRICANTE_SPOOF,
+            "--reason",
             "-p", str(port), ip
         ]
 
@@ -78,9 +89,7 @@ def check_port_nmap(ip, port):
             return "ABIERTO"
         elif f"{port}/tcp closed" in salida:
             return "CERRADO"
-        elif f"{port}/tcp filtered" in salida:
-            return "BANEADO"
-        elif "host seems down" in salida or "0 hosts up" in salida:
+        elif f"{port}/tcp filtered" in salida or "host seems down" in salida or "0 hosts up" in salida:
             return "BANEADO"
         else:
             return "DESCONOCIDO"

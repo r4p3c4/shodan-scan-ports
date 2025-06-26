@@ -9,6 +9,19 @@ BLUE = "\033[94m"
 MAGENTA = "\033[95m"
 RESET = "\033[0m"
 
+def mostrar_portada():
+    print(f"""{BLUE}
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                        @
+@                   {RED}S H O D A N - S C A N - P O R T S{BLUE}                    @
+@                                                                        @
+@            {MAGENTA}Suscríbete a mí canal de YouTube para más Hacking{BLUE}           @
+@                                                                        @
+@{GREEN}            =========> https://cuty.io/youtubehack <=========   {BLUE}        @
+@                                                                        @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+{RESET}""")
+
 def check_port(ip, port, timeout=2):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -62,6 +75,7 @@ def scan_ips_from_file(filename, ports):
 
 if __name__ == "__main__":
     try:
+        mostrar_portada()
         puerto_input = input("Introduce uno o más puertos separados por comas (ej. 80,443,3389): ").strip()
         try:
             puertos = [int(p.strip()) for p in puerto_input.split(",") if p.strip().isdigit()]
@@ -78,5 +92,5 @@ if __name__ == "__main__":
         scan_ips_from_file(archivo_ips, puertos)
 
     except KeyboardInterrupt:
-        print(f"\n{YELLOW}=======================> SALISTE DEL PROGRAMA <======================={RESET}")
+        print(f"\n{RED}=======================> SALISTE DEL PROGRAMA <======================={RESET}")
         sys.exit(0)

@@ -23,7 +23,7 @@ def mostrar_portada():
 @                                                                        @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 {RESET}""")
-    
+
 def procesar_entrada_puertos(puerto_input):
     puertos = set()
     duplicados = set()
@@ -119,7 +119,7 @@ def scan_ips_from_file(filename, ports):
     print()
 
     if resultados_abiertos:
-        print(f"{GREEN}Puertos abiertos:{RESET}\n")
+        print(f"{GREEN}Puertos abiertos{BLUE}[{len(resultados_abiertos)}]{GREEN}:{RESET}\n")
         for i, entrada in enumerate(resultados_abiertos):
             print(f"{GREEN}{entrada}{RESET}")
             if i != len(resultados_abiertos) - 1:

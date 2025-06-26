@@ -1,5 +1,6 @@
 import socket
 import sys
+import os
 
 # Códigos de color ANSI
 RED = "\033[91m"
@@ -32,63 +33,107 @@ def check_port(ip, port, timeout=2):
         print(f"{YELLOW}[!] Error con {ip}:{port} - {e}{RESET}")
         return False
 
+def procesar_entrada_puertos(puerto_input):
+    puertos = set()
+    duplicados = set()
+    errores = []
+    partes = puerto_input.split(",")
+
+    for parte in partes:
+        parte = parte.strip()
+        if "-" in parte:
+            try:
+                inicio, fin = map(int, parte.split("-"))
+                if 1 <= inicio <= 65535 and 1 <= fin <= 65535 and inicio <= fin:
+                    for p in range(inicio, fin + 1):
+                        if p in puertos:
+                            duplicados.add(p)
+                        puertos.add(p)
+                else:
+                    errores.append(f"Rango inválido: {parte}")
+            except ValueError:
+                errores.append(f"Rango mal formado: {parte}")
+        elif parte.isdigit():
+            num = int(parte)
+            if 1 <= num <= 65535:
+                if num in puertos:
+                    duplicados.add(num)
+                puertos.add(num)
+            else:
+                errores.append(f"Puerto fuera de rango: {num}")
+        else:
+            errores.append(f"Formato inválido: {parte}")
+
+    return sorted(puertos), duplicados, errores
+
 def scan_ips_from_file(filename, ports):
     resultados_abiertos = []
 
-    try:
-        with open(filename, 'r') as file:
-            ips = file.readlines()
+    with open(filename, 'r') as file:
+        ips = file.readlines()
 
-        for ip in ips:
-            ip = ip.strip()
-            if not ip:
-                continue
-
-            print(f"{YELLOW}{'#' * 74}{RESET}")
-            print(f"{YELLOW}IP: {ip}{RESET}")
-            print(f"{BLUE}{'- ' * 37}{RESET}")  # 66 chars wide
-
-            for port in ports:
-                status = check_port(ip, port)
-                if status:
-                    print(f"{GREEN}[{ip}:{port}] ABIERTO{RESET}")
-                    resultados_abiertos.append(f"{ip}:{port}")
-                else:
-                    print(f"{RED}[{ip}:{port}] CERRADO{RESET}")
+    for ip in ips:
+        ip = ip.strip()
+        if not ip:
+            continue
 
         print(f"{YELLOW}{'#' * 74}{RESET}")
+        print(f"{YELLOW}IP: {ip}{RESET}")
+        print(f"{BLUE}{'- ' * 37}{RESET}")
 
-        # Mostrar resumen de IP:puerto ABIERTO al final
-        print(f"{MAGENTA}{'@' * 74}{RESET}")
-        if resultados_abiertos:
-            print(f"{GREEN}Puertos abiertos:{RESET}")
-            for entrada in resultados_abiertos:
-                print(f"{GREEN}{entrada}{RESET}")
-        else:
-            print(f"{RED}No se encontraron puertos abiertos.{RESET}")
-        print(f"{MAGENTA}{'@' * 74}{RESET}")
+        for port in ports:
+            status = check_port(ip, port)
+            if status:
+                print(f"{GREEN}[{ip}:{port}] ABIERTO{RESET}")
+                resultados_abiertos.append(f"{ip}:{port}")
+            else:
+                print(f"{RED}[{ip}:{port}] CERRADO{RESET}")
 
-    except FileNotFoundError:
-        print(f"{RED}[!] Archivo '{filename}' no encontrado.{RESET}")
-    except Exception as e:
-        print(f"{RED}[!] Error: {e}{RESET}")
+    print(f"{YELLOW}{'#' * 74}{RESET}")
+    print(f"{MAGENTA}{'@' * 74}{RESET}")
+    if resultados_abiertos:
+        print(f"{GREEN}Puertos abiertos:{RESET}")
+        for entrada in resultados_abiertos:
+            print(f"{GREEN}{entrada}{RESET}")
+    else:
+        print(f"{RED}No se encontraron puertos abiertos.{RESET}")
+    print(f"{MAGENTA}{'@' * 74}{RESET}")
 
 if __name__ == "__main__":
     try:
         mostrar_portada()
-        puerto_input = input("Introduce uno o más puertos separados por comas (ej. 80,443,3389): ").strip()
-        try:
-            puertos = [int(p.strip()) for p in puerto_input.split(",") if p.strip().isdigit()]
-            if not puertos:
-                raise ValueError
-        except ValueError:
-            print(f"{RED}[!] Debes introducir al menos un puerto válido (números enteros).{RESET}")
-            sys.exit(1)
 
-        archivo_ips = input("Introduce el nombre del archivo con las IPs (por defecto 'ips.txt'): ").strip()
-        if not archivo_ips:
-            archivo_ips = "ips.txt"
+        # Bucle para validación de puertos
+        while True:
+            puerto_input = input("Introduce uno o más puertos o rangos (ej. 80,443,1000-1010): ").strip()
+            puertos, duplicados, errores = procesar_entrada_puertos(puerto_input)
 
+            if errores:
+                print(f"{RED}[!] Se encontraron errores en la entrada de puertos:{RESET}")
+                for e in errores:
+                    print(f"{RED}    - {e}{RESET}")
+                print(f"{YELLOW}Por favor, vuelve a introducir los puertos correctamente.{RESET}\n")
+                continue
+
+            if duplicados:
+                print(f"{YELLOW}[!] Algunos puertos fueron ignorados por estar duplicados:{RESET}")
+                for d in sorted(duplicados):
+                    print(f"{YELLOW}    - Puerto duplicado o ya incluido en un rango: {d}{RESET}")
+
+            break  # todo válido
+
+        # Bucle para validación del archivo
+        while True:
+            archivo_ips = input("Introduce el nombre del archivo con las IPs (por defecto 'ips.txt'): ").strip()
+            if not archivo_ips:
+                archivo_ips = "ips.txt"
+
+            if os.path.isfile(archivo_ips):
+                break
+            else:
+                print(f"{RED}[!] El archivo '{archivo_ips}' no existe. Inténtalo de nuevo.{RESET}")
+
+        # Ejecutar escaneo
         scan_ips_from_file(archivo_ips, puertos)
 
     except KeyboardInterrupt:

@@ -2,7 +2,6 @@ import socket
 import sys
 import os
 import subprocess
-import random
 
 # Códigos de color ANSI
 RED = "\033[91m"
@@ -11,15 +10,6 @@ YELLOW = "\033[93m"
 BLUE = "\033[94m"
 MAGENTA = "\033[95m"
 RESET = "\033[0m"
-
-# Lista real de fabricantes de ordenadores que se venden en tiendas
-FABRICANTES_MAC = [
-    "Apple", "Asus", "Acer", "Dell", "HP", "Lenovo", "Microsoft", "MSI",
-    "Samsung", "Sony", "Toshiba", "Panasonic", "LG", "Huawei"
-]
-
-# Elegir aleatoriamente uno
-FABRICANTE_SPOOF = random.choice(FABRICANTES_MAC)
 
 def mostrar_portada():
     print(f"""{BLUE}
@@ -33,8 +23,7 @@ def mostrar_portada():
 @                                                                        @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 {RESET}""")
-    print(f"{YELLOW}[INFO] Usando spoof MAC con fabricante: {FABRICANTE_SPOOF}{RESET}\n")
-
+    
 def procesar_entrada_puertos(puerto_input):
     puertos = set()
     duplicados = set()
@@ -77,7 +66,6 @@ def check_port_nmap(ip, port):
             "-T1",
             "--scan-delay", "100ms",
             "--max-retries", "2",
-            "--spoof-mac", FABRICANTE_SPOOF,
             "--reason",
             "-p", str(port), ip
         ]

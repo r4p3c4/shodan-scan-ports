@@ -44,7 +44,7 @@ def scan_ips_from_file(filename, ports):
             if not ip:
                 continue
 
-            print(f"{YELLOW}{'#' * 66}{RESET}")
+            print(f"{YELLOW}{'#' * 74}{RESET}")
             print(f"{YELLOW}IP: {ip}{RESET}")
             print(f"{BLUE}{'- ' * 33}{RESET}")  # 66 chars wide
 
@@ -92,5 +92,5 @@ if __name__ == "__main__":
         scan_ips_from_file(archivo_ips, puertos)
 
     except KeyboardInterrupt:
-        print(f"\n{RED}=======================> SALISTE DEL PROGRAMA <======================={RESET}")
+        print(f"\n{RED}=========================> SALISTE DEL PROGRAMA <========================={RESET}")
         sys.exit(0)

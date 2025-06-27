@@ -1,5 +1,5 @@
 # shodan-scan-ports
-Verifica el estado real de los puertos de los dispositivos en Shodan
+Verifica el estado real de los puertos de cada dispositivo que hayas encontrado en Shodan
 
 # Suscribiros o uniros a mis redes sociales para más HACKING!!
 

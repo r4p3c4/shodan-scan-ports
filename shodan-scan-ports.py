@@ -1,7 +1,7 @@
 import socket
 import sys
 import os
-import subprocess
+import errno
 
 # Códigos de color ANSI
 RED = "\033[91m"
@@ -57,35 +57,26 @@ def procesar_entrada_puertos(puerto_input):
 
     return sorted(puertos), duplicados, errores
 
-def check_port_nmap(ip, port):
+def check_port_socket(ip, port, timeout=3):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(timeout)
+
     try:
-        cmd = [
-            "nmap",
-            "-sS",
-            "-Pn",
-            "-T1",
-            "--scan-delay", "100ms",
-            "--max-retries", "5",
-            "--reason",
-            "-p", str(port), ip
-        ]
+        result = s.connect_ex((ip, port))
+        s.close()
 
-        resultado = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-        salida = resultado.stdout.lower()
-
-        if f"{port}/tcp open" in salida:
+        if result == 0:
             return "ABIERTO"
-        elif f"{port}/tcp closed" in salida:
+        elif result == errno.ECONNREFUSED:
             return "CERRADO"
-        elif f"{port}/tcp filtered" in salida or "host seems down" in salida or "0 hosts up" in salida:
-            return "BANEADO"
+        elif result in (errno.ETIMEDOUT, errno.EHOSTUNREACH, errno.ENETUNREACH):
+            return "FILTERED"
         else:
-            return "DESCONOCIDO"
-    except subprocess.TimeoutExpired:
-        return "BANEADO"
-    except Exception as e:
-        print(f"{YELLOW}[!] Error ejecutando nmap en {ip}:{port} - {e}{RESET}")
-        return "DESCONOCIDO"
+            return "FILTERED"
+    except socket.timeout:
+        return "FILTERED"
+    except Exception:
+        return "FILTERED"
 
 def scan_ips_from_file(filename, ports):
     resultados_abiertos = []
@@ -103,13 +94,13 @@ def scan_ips_from_file(filename, ports):
         print(f"{BLUE}{'- ' * 37}{RESET}")
 
         for port in ports:
-            estado = check_port_nmap(ip, port)
+            estado = check_port_socket(ip, port)
             if estado == "ABIERTO":
                 print(f"{GREEN}[{ip}:{port}] {estado}{RESET}")
                 resultados_abiertos.append(f"{ip}:{port}")
             elif estado == "CERRADO":
                 print(f"{RED}[{ip}:{port}] {estado}{RESET}")
-            elif estado == "BANEADO":
+            elif estado == "FILTERED":
                 print(f"{MAGENTA}[{ip}:{port}] {estado}{RESET}")
             else:
                 print(f"{YELLOW}[{ip}:{port}] ESTADO DESCONOCIDO{RESET}")

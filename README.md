@@ -21,7 +21,7 @@ Instalas la siguiente herramienta:
 
 <img src="https://i.postimg.cc/0NgKDzmT/4.png" alt="video3"/>
 
-Accedes a https://account.shodan.io y copias la API KEY:
+Accedes a <a href="https://account.shodan.io" target="_blank">Shodan</a> y copias la API KEY:
 
 <img src="https://i.postimg.cc/0QnzTZ3v/5.png" alt="video3"/>
 
